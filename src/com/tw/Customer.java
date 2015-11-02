@@ -5,19 +5,19 @@ import java.util.List;
 
 public class Customer {
 
-    private String _name;
-    private List<Rental> _rentals = new ArrayList<Rental>();
+    private String name;
+    private List<Rental> rentals = new ArrayList<Rental>();
 
     public Customer(String name) {
-        _name = name;
+        this.name = name;
     }
 
     public void addRental(Rental arg) {
-        _rentals.add(arg);
+        this.rentals.add(arg);
     }
 
     public String getName() {
-        return _name;
+        return this.name;
     }
 
     public String statement() {
@@ -32,7 +32,7 @@ public class Customer {
 
     private HashMap<String, Double> getMoviePriceMap() {
         HashMap<String, Double> map = new HashMap<>();
-        for(Rental rental: _rentals) {
+        for(Rental rental: this.rentals) {
             map.put(rental.getMovie().getTitle(), (Double)calculateAmountFor(rental));
         }
         return map;
@@ -41,7 +41,7 @@ public class Customer {
 
     private double getTotalAmount(){
         double amount = 0;
-        for (Rental rental: _rentals){
+        for (Rental rental: this.rentals){
             amount += calculateAmountFor(rental);
         }
         return amount;
@@ -49,7 +49,7 @@ public class Customer {
 
     private int getTotalFrequentRenterPoints() {
         int frequentRenterPoints = 0;
-        for (Rental rental: _rentals) {
+        for (Rental rental: this.rentals) {
             frequentRenterPoints += getFrequentRenterPoints(rental);
         }
         return frequentRenterPoints;
