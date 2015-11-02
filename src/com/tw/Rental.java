@@ -1,5 +1,7 @@
 package com.tw;
 
+import java.util.ArrayList;
+
 public class Rental {
 
     private Movie _movie;

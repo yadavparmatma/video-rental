@@ -1,5 +1,6 @@
 package com.tw;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Customer {
@@ -20,45 +21,78 @@ public class Customer {
     }
 
     public String statement() {
-        double totalAmount = 0;
-        int frequentRenterPoints = 0;
-        String result = "Rental Record for " + getName() + "\n";
-
-        for (Rental each: _rentals) {
-            double thisAmount = 0;
-
-            //determine amounts for each line
-            switch (each.getMovie().getPriceCode()) {
-                case Movie.REGULAR:
-                    thisAmount += 2;
-                    if (each.getDaysRented() > 2)
-                        thisAmount += (each.getDaysRented() - 2) * 1.5;
-                    break;
-                case Movie.NEW_RELEASE:
-                    thisAmount += each.getDaysRented() * 3;
-                    break;
-                case Movie.CHILDRENS:
-                    thisAmount += 1.5;
-                    if (each.getDaysRented() > 3)
-                        thisAmount += (each.getDaysRented() - 3) * 1.5;
-                    break;
-            }
-
-            // add frequent renter points
-            frequentRenterPoints++;
-            // add bonus for a two day new release rental
-            if ((each.getMovie().getPriceCode() == Movie.NEW_RELEASE) && each.getDaysRented() > 1)
-                frequentRenterPoints++;
-
-            // show figures for this rental
-            result += "\t" + each.getMovie().getTitle() + "\t" + String.valueOf(thisAmount) + "\n";
-            totalAmount += thisAmount;
+        HashMap<String, Double> moviePriceMap = getMoviePriceMap();
+        String result = getHeader();
+        for(String movieName : moviePriceMap.keySet()){
+            result += getResult(movieName, moviePriceMap.get(movieName));
         }
-
-        // add footer lines
-        result += "Amount owed is " + String.valueOf(totalAmount) + "\n";
-        result += "You earned " + String.valueOf(frequentRenterPoints) + " frequent renter points";
-
+        result += getFooter();
         return result;
+    }
+
+    private HashMap<String, Double> getMoviePriceMap() {
+        HashMap<String, Double> map = new HashMap<>();
+        for(Rental rental: _rentals) {
+            map.put(rental.getMovie().getTitle(), (Double)calculateAmountFor(rental));
+        }
+        return map;
+    }
+
+
+    private double getTotalAmount(){
+        double amount = 0;
+        for (Rental rental: _rentals){
+            amount += calculateAmountFor(rental);
+        }
+        return amount;
+    }
+
+    private int getTotalFrequentRenterPoints() {
+        int frequentRenterPoints = 0;
+        for (Rental rental: _rentals) {
+            frequentRenterPoints += getFrequentRenterPoints(rental);
+        }
+        return frequentRenterPoints;
+    }
+
+    private String getFooter() {
+        return "Amount owed is " + String.valueOf(getTotalAmount()) + "\n" +
+                "You earned " + String.valueOf(getTotalFrequentRenterPoints()) + " frequent renter points";
+    }
+
+    private String getHeader() {
+        return "Rental Record for " + getName() + "\n";
+    }
+
+    private String getResult(String movieName, double thisAmount) {
+        return  "\t" + movieName + "\t" + String.valueOf(thisAmount) + "\n";
+
+    }
+
+    private int getFrequentRenterPoints(Rental rental) {
+        int frequentRenterPoints = 1;
+        if ((rental.getMovie().getPriceCode() == Movie.NEW_RELEASE) && rental.getDaysRented() > 1)
+            frequentRenterPoints++;
+        return frequentRenterPoints;
+    }
+
+    private double calculateAmountFor(Rental rental) {
+        double amount = 0;
+        switch (rental.getMovie().getPriceCode()) {
+            case Movie.REGULAR:
+                amount += 2;
+                if (rental.getDaysRented() > 2)
+                    amount += (rental.getDaysRented() - 2) * 1.5;
+                break;
+            case Movie.NEW_RELEASE:
+                amount += rental.getDaysRented() * 3;
+                break;
+            case Movie.CHILDRENS:
+                amount += 1.5;
+                if (rental.getDaysRented() > 3)
+                    amount += (rental.getDaysRented() - 3) * 1.5;
+                break;
+        }
+        return amount;
     }
 }
